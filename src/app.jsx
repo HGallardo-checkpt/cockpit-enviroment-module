@@ -19,32 +19,59 @@
 
 import cockpit from 'cockpit';
 import React from 'react';
-import { Alert } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
-import { Card, CardBody, CardTitle } from "@patternfly/react-core/dist/esm/components/Card/index.js";
+import '@patternfly/react-core/dist/styles/base.css';
+import { Form, FormGroup, FormSection, TextInput, Button } from '@patternfly/react-core';
+/// import { LocalConfiguration } from './components/localConfiguration';
 
 const _ = cockpit.gettext;
 
 export class Application extends React.Component {
-    constructor() {
-        super();
-        this.state = { hostname: _("Unknown") };
+    constructor(props) {
+        super(props);
+        this.state = {
+            hostname: _("Unknown"),
+            nameVariable: "",
+            valueVariable: "",
+        };
 
-        cockpit.file('/etc/hostname').watch(content => {
-            this.setState({ hostname: content.trim() });
-        });
+        this.handleNewVariable = () => {
+            console.log(this.state.nameVariable);
+            console.log(this.state.valueVariable);
+        
+            cockpit.script("echo " + this.state.nameVariable.toUpperCase() + "=" + this.state.valueVariable + " >> /tmp/test.txt");
+ 
+            /// cockpit.script("sudo docker run --env-file=/tmp/test.txt custom-python-app");
+        };
+
+        this.handleInputChange = (event, value) => {
+            const { name } = event.target;
+
+            this.setState({
+                [name]: value
+            });
+        };
     }
 
     render() {
+        const {
+            nameVariable,
+            valueVariable
+        } = this.state;
+
         return (
-            <Card>
-                <CardTitle>Starter Kit</CardTitle>
-                <CardBody>
-                    <Alert
-                        variant="info"
-                        title={ cockpit.format(_("Running on $0"), this.state.hostname) }
-                    />
-                </CardBody>
-            </Card>
+            <Form>
+                <FormSection>
+                    <FormGroup label="Set new variable name" isRequired fieldId="name-input">
+                        <TextInput isRequired name='nameVariable' id='nameVariable' type="text" defaultValue={nameVariable.toUpperCase()} value={nameVariable.toUpperCase()} onChange={this.handleInputChange} />
+                    </FormGroup>
+                </FormSection>
+                <FormSection>
+                    <FormGroup label="Set value for new variable" isRequired fieldId="value-input">
+                        <TextInput isRequired name='valueVariable' id='valueVariable' type="text" defaultValue={valueVariable} onChange={this.handleInputChange} />
+                    </FormGroup>
+                </FormSection>
+                <Button id='submit' name='submit' onClick={this.handleNewVariable}>Set variable</Button>
+            </Form>
         );
     }
 }
