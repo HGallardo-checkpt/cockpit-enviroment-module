@@ -34,6 +34,19 @@ export class Application extends React.Component {
             valueVariable: "",
         };
 
+        this.loadEnvironmentVarsFile= () =>{
+            cockpit.file("/var/environment/lpp-custom-application/file-env-vars.txt").read()
+            .then((content, tag) => {
+                console.log(content)
+                console.log("**************")
+                console.log(tag)
+            })
+            .catch(error => {
+                console.log("xxxxxxxxxxxxxxxxx")
+                console.log(error)
+            });
+        };
+
         this.handleNewVariable = () => {
             console.log(this.state.nameVariable);
             console.log(this.state.valueVariable);
